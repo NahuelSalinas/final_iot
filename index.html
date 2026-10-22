@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mesa de Entradas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #1b1a2e; color: #f4e9c8; font-family: 'VT323', ui-monospace, Menlo, monospace; font-size: 20px; overflow: hidden; }
+      #lobby { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #1b1a2e; z-index: 2; text-align: center; }
+      #lobby.hidden { display: none; }
+      #qr { image-rendering: pixelated; width: 260px; height: 260px; border: 6px solid #f4e9c8; background: #fff; }
+      #code { font-size: 36px; letter-spacing: 8px; }
+      #hint { opacity: .85; max-width: 460px; line-height: 1.3; }
+      #skip, #skip-intro { font: inherit; background: transparent; color: #f4e9c8; border: 2px dashed #f4e9c8; padding: 8px 14px; cursor: pointer; }
+      #game { position: fixed; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="lobby">
+      <h1>Mesa de Entradas</h1>
+      <img id="qr" alt="QR de la sala" />
+      <div id="code"></div>
+      <div id="hint">Escaneá el QR con tu celular (misma red WiFi) y tocá <b>Conectar</b>.<br /><small id="url"></small><br /><small>Hacé clic una vez en esta ventana para activar el sonido.</small></div>
+      <div id="conn"></div>
+      <button id="skip">Jugar sin celular (teclado)</button>
+      <button id="skip-intro">Saltar introducción (teclado)</button>
+    </div>
+    <div id="game"></div>
+    <script type="module" src="/src/host/main.ts"></script>
+  </body>
+</html>
