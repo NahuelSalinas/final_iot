@@ -33,7 +33,7 @@ Vas a la Municipalidad de *Villa Expediente*. Hay una sola ventanilla abierta, l
 |---|---|---|
 | **Gerardo**, el Funcionario | Tiene todos los datos del trámite | Desganado, monosilábico, siempre "a punto de irse". Se ablanda con el mate y las buenas formas. Detesta las preguntas vagas. |
 | **Tomás**, el Pasante | Debe pedirle los datos a Gerardo en tu nombre | Bien intencionado pero colgado. Confunde formularios, repite preguntas, se distrae. Es quien termina escribiendo en la planilla. |
-| **Vos** | Ciudadano en la fila | Mudo. Sólo actuás con gestos del celular y, si se habilita, con susurros por micrófono. |
+| **Vos** | Ciudadano en la fila | Mudo. Solo actuás con gestos del celular y, si se habilita, con susurros por micrófono. |
 
 ### Estructura: 5 ventanillas = 5 "tramos" del trámite
 
@@ -43,7 +43,7 @@ Cada tramo es un caso corto (2 a 4 minutos) con un **dato secreto distinto** que
 2. **Oficina y piso** donde se firma.
 3. **Sello requerido** y de qué área.
 4. **Horario de atención** de esa oficina (casi siempre es "una ventana de 20 minutos").
-5. **Expediente madre**: el dato final, que sólo se obtiene si la relación con Gerardo es buena.
+5. **Expediente madre**: el dato final, que solo se obtiene si la relación con Gerardo es buena.
 
 ### Giro narrativo
 
@@ -51,14 +51,14 @@ En el tramo 5 se revela que Gerardo **tomaba mate con tu abuela Nelly** todas la
 
 ### Finales
 
-| Final | Condición | Qué pasa |
-|---|---|---|
-| **Escritura firmada** | Los 5 datos correctos y buena relación con Gerardo | Te quedás con el kiosco. Gerardo aparece en la escena final con un mate. |
-| **Por el pelo** | Los 5 datos correctos pero con mala relación | Conseguís el certificado a las 12:59, después de una última humillación burocrática. |
-| **Vuelva mañana** | La paciencia de Gerardo llega a 0 en cualquier tramo | Cierra la ventanilla. Es demasiado tarde y el kiosco va a remate. Escena final agridulce con Tomás pidiendo disculpas. |
-| **Secreto** *(opcional)* | Descubrir el patrón de rutina de Gerardo | Un final extra para quienes rejuegan. |
+| Final | Condición |
+|---|---|
+| **Escritura firmada** | Las 5 ventanillas con buena relación (≥ 50) con Gerardo. Revela que le fiaba alfajores a Nelly. |
+| **Por el pelo** | Las 5 ventanillas con mala relación. Sello a las 12:59 y sin cariño. |
+| **Vuelva mañana** | La paciencia de Gerardo llega a 0 en cualquier ventanilla. |
+| **Se acabó la hora** | El reloj marca las 13:00. |
 
-El tono es **humor cotidiano rioplatense** (mate, "vuelva mañana", "falta un sello"), con exageración leve y sin llegar a lo absurdo.
+El tono es **humor cotidiano rioplatense** (mate, "vuelva mañana", "falta un sello"), con exageración leve.
 
 ---
 
@@ -67,29 +67,43 @@ El tono es **humor cotidiano rioplatense** (mate, "vuelva mañana", "falta un se
 ### Flujo
 
 1. Abrís el juego en la PC. Aparece un **QR** con el código de sala.
-2. Escaneás el QR con el celular. Se abre una web (sin instalar apps). Tocás **"Conectar"**, que da permiso a los sensores.
-3. Calibrás: "apuntá a la pantalla y tocá".
-4. Empieza el tramo. Gerardo y Tomás dialogan. Vos intervenís con el celular.
-5. Si Tomás anota el **dato correcto** antes de que se agote la paciencia de Gerardo, pasás al siguiente tramo.
+2. Escaneás el QR con el celular (misma red WiFi), tocás **Conectar** y aceptás los permisos de movimiento.
+3. **Historia** (3 tarjetas) y **capacitación**: el juego te enseña cada gesto y no avanza hasta que lo hacés. Si un gesto no sale, hay un botón en el celular y una tecla en la PC.
+4. Cinco ventanillas. En cada una, Tomás le pregunta cosas a Gerardo. Cuando Gerardo dice el dato (la línea queda marcada con ★), Tomás lo anota en la **planilla**.
+5. **Vos decidís**: si lo anotado coincide con lo que dijo Gerardo, **sellás**; si no, **rechazás**. Tomás se equivoca a propósito algunas veces, y esa es la mecánica central.
 
-### Gestos del celular
+### Acciones
 
-| Gesto | Sensor | Efecto |
-|---|---|---|
-| Inclinar suavemente | Giroscopio / orientación | Servir mate o café sin derramar. Si se derrama, baja el ánimo de Gerardo. |
-| Sacudir | Acelerómetro | Toser para interrumpir un malentendido o despertar a Gerardo. |
-| Flick hacia adelante | Acelerómetro | Tirar un papelito con una pista al Pasante. |
-| Golpe hacia abajo | Acelerómetro | Estampar el sello cuando el formulario está bien. |
-| Apuntar | Giroscopio | Señalar en pantalla un campo del formulario. |
-| Hablar *(opcional)* | Micrófono, Web Speech API | Susurrar una pista a Tomás. |
+| Acción | Gesto | Botón del celular | Tecla | Efecto |
+|---|---|---|---|---|
+| **Servir mate** | Inclinar entre 15° y 35° durante 1 s | SERVIR MATE | M | +12 paciencia, Gerardo más blando 25 s, +relación. Gasta una cebada. Pasarte de 35° lo derrama (−5 paciencia, −relación, se pierde la cebada). |
+| **Papelito** | Empujón hacia adelante | PAPELITO | F | Pista para Tomás: +25 de atención. Cuesta 3 de paciencia. Cantidad limitada por ventanilla. |
+| **Sellar** | Golpe seco hacia abajo | SELLAR | T / Espacio | Aprueba la planilla. Si el dato es correcto, pasás de ventanilla; si no, −15 paciencia y −relación. |
+| **Rechazar** | Sacudir de lado a lado | RECHAZAR | R | Devuelve la planilla. Bien hecho si estaba mal anotada (+relación, Tomás reintenta). Si estaba bien: −10 paciencia y −relación. |
 
-### Recursos del jugador
+### Ritmo de lectura
 
-- **Paciencia de Gerardo**: barra principal. Si llega a 0, se pierde el tramo.
-- **Claridad de Tomás**: qué tan encaminada está su pregunta. Sube con pistas y baja con distracciones.
-- **Reloj de la Municipalidad**: el día avanza y la oficina cierra. Presión de tiempo global.
+El texto se escribe en pantalla a unos 34 caracteres por segundo y, al terminar, la conversación espera una pausa proporcional al largo de la línea (mínimo 2 s) antes de que hable el otro. Mientras se lee, la paciencia de Gerardo baja a la mitad de velocidad, para no castigar al jugador por leer. Los avisos duran más cuanto más largos son.
 
----
+### Qué se ve en pantalla
+
+- **Panel superior:** paciencia de Gerardo, atención de Tomás, cebadas y papelitos que quedan, y el **reloj**: arranca 11:00 y la Municipalidad cierra a las 13:00.
+- **Cuadro de diálogo:** las últimas líneas de la charla, con colores por personaje y el **objetivo** de la ventanilla arriba. Nada desaparece de golpe.
+- **Barra de consejo:** una línea que dice qué conviene hacer ahora (servir mate, tirar un papelito, decidir sobre la planilla).
+- **Planilla:** cuando Tomás anota algo aparece una tarjeta al centro con lo anotado y las dos opciones.
+- **Celular:** muestra la misma instrucción en grande, confirma cada gesto y vibra (en Android).
+
+### Dificultad creciente de verdad
+
+| Ventanilla | Decaimiento de paciencia | Prob. de que Tomás anote mal | Papelitos | Cebadas |
+|---|---|---|---|---|
+| 1 · Formulario | 0,4 /s | 100 % (se usa para enseñar) | 3 | 3 |
+| 2 · Oficina y piso | 0,5 /s | 60 % | 2 | 3 |
+| 3 · Sello | 0,6 /s | 70 % | 2 | 3 |
+| 4 · Horario | 0,7 /s | 75 % | 1 | 2 |
+| 5 · Expediente madre | 0,8 /s | 80 % | 1 | 2 |
+
+Además, Gerardo exige más ánimo para hablar en cada ventanilla, y en la última **solo colabora de verdad si la relación con él es buena** (≥ 50). El reloj es global: 10 minutos reales equivalen a las 2 horas de la oficina.
 
 ## 4. Diseño de los LLMs
 
@@ -108,14 +122,14 @@ El texto va primero para poder mostrarlo mientras se genera. El bloque final de 
 
 ### Reglas verificadas por código, no por el modelo
 
-- El dato secreto vive sólo en el prompt de Gerardo y en el estado del servidor.
-- Gerardo "revela" sólo si se cumplen condiciones del caso (pregunta precisa, ánimo mínimo, mate reciente).
+- El dato secreto vive solo en el prompt de Gerardo y en el estado del servidor.
+- Gerardo "revela" solo si se cumplen condiciones del caso (pregunta precisa, ánimo mínimo, mate reciente).
 - El éxito se comprueba comparando lo que Tomás **escribe en la planilla** contra el dato real, con una comparación normalizada y sin pedirle al modelo que juzgue.
 - Los efectos de los gestos sobre el ánimo se calculan localmente, sin pasar por el LLM.
 
 ### Modelo
 
-Un modelo chico y rápido (Claude Haiku 5.5) llamado desde una función serverless, para no exponer la API key. Respuestas cortas (1 a 2 frases, `max_tokens` bajo).
+**Groq** (inferencia muy rápida, con plan gratuito), llamado desde una función serverless para no exponer la API key. Por defecto `openai/gpt-oss-120b` (~500 tok/s); con `GROQ_MODEL=openai/gpt-oss-20b` (~1000 tok/s) la respuesta llega al doble de rápido a costa de algo de calidad en el humor. Se usa `reasoning_effort: low` y sin devolver el razonamiento, para bajar la latencia. Respuestas cortas (1 a 2 frases).
 
 ---
 
@@ -142,7 +156,7 @@ Un modelo chico y rápido (Claude Haiku 5.5) llamado desde una función serverle
 | Control (celular) | Página web liviana, JS plano, `DeviceOrientationEvent` / `DeviceMotionEvent` |
 | Conexión | **WebRTC DataChannel** (PeerJS para la señalización) |
 | Respaldo de conexión | Supabase Realtime (WebSocket) si WebRTC falla |
-| LLM | API de Claude (Haiku 5.5) vía función serverless en Vercel |
+| LLM | Groq (`openai/gpt-oss-120b`, API compatible con OpenAI) vía función serverless en Vercel, con `fetch` y sin SDK |
 | Hosting | Vercel (HTTPS incluido, requisito de los sensores en iOS) |
 | Audio | Web Audio API, efectos propios y música libre |
 
@@ -157,13 +171,13 @@ La latencia se trata como requisito de diseño. Se separan **dos tipos de intera
 | Camino | Objetivo | Cómo se logra |
 |---|---|---|
 | Gesto → reacción visual | **< 50 ms** | Datos por WebRTC peer-to-peer, sin pasar por servidor. El efecto (derramar, sellar) se calcula **localmente** en la PC. |
-| Orientación continua | 60 Hz | Canal **no ordenado y sin reintentos** (`ordered: false`, `maxRetransmits: 0`): si se pierde un paquete, el siguiente lo reemplaza. |
+| Orientación continua | 60 Hz | Canal **no ordenado** (`ordered: false`): un paquete perdido no frena a los siguientes, y en la PC se descarta lo que llega más viejo que lo ya visto. PeerJS no permite fijar `maxRetransmits`, así que los reintentos del canal siguen activos. |
 | Pregunta → primera palabra del LLM | **< 800 ms** | Streaming, modelo chico, prompt corto, `max_tokens` bajo. |
 | Cambio de estado por gestos | instantáneo | No depende del LLM. |
 
 ### Tácticas
 
-1. **Los gestos nunca esperan al LLM.** El mate, la tos y el sello afectan al ánimo al instante. El LLM sólo recibe el nuevo estado como contexto para el siguiente turno.
+1. **Los gestos nunca esperan al LLM.** El mate, la tos y el sello afectan al ánimo al instante. El LLM solo recibe el nuevo estado como contexto para el siguiente turno.
 2. **Streaming con máquina de escribir.** El texto aparece apenas llega el primer token.
 3. **Conversación prefabricada de arranque.** La apertura de cada tramo está escrita a mano y se muestra mientras el modelo genera el resto.
 4. **Prellenado anticipado.** Mientras Gerardo habla, se dispara por adelantado la respuesta probable de Tomás.
@@ -183,7 +197,7 @@ La latencia se trata como requisito de diseño. Se separan **dos tipos de intera
 | La WiFi del lugar de la demo bloquea el P2P | Conexión de respaldo por WebSocket y, de ser necesario, servidor TURN. Probar en la red de la demo **antes** de presentar. |
 | Respuestas inconsistentes del LLM | Salida con formato fijo, validación, y reintento o frase de respaldo si el formato falla. |
 | Costo y límites de la API | Respuestas cortas, modelo chico, tope de turnos por tramo. |
-| Gerardo revela el dato "por error" | El dato sólo está en el contexto de Gerardo y se valida por código. Pruebas de prompt específicas. |
+| Gerardo revela el dato "por error" | El dato solo está en el contexto de Gerardo y se valida por código. Pruebas de prompt específicas. |
 | Android y iOS se comportan distinto | Probar en al menos un dispositivo de cada sistema desde la semana 1. |
 
 ---
@@ -244,30 +258,75 @@ Hay tiempo de sobra, así que el plan deja margen para pulir en la última seman
 
 ---
 
-## 10. Cuestiones abiertas
+## 10. Decisiones y cuestiones abiertas
+
+### Decididas
+
+| Tema | Decisión |
+|---|---|
+| Estilo visual | **Pixel art**, sprites chicos y paleta acotada para mantener cohesión. |
+| Micrófono | **Extra opcional.** Se implementa solo si sobra tiempo, con respaldo si el navegador no soporta la Web Speech API (Safari/iOS es irregular). Ninguna mecánica esencial depende de él. |
+| Dificultad | **Creciente por tramo**, sin selector. Cada ventanilla es más exigente que la anterior (Gerardo menos paciente, preguntas más precisas, ventanas de tiempo más cortas). |
+| Idioma | **Español rioplatense fijo** (voseo, mate, modismos). Simplifica los prompts y da identidad al humor. |
+
+### Abiertas
 
 - Nombre definitivo del juego y de la Municipalidad.
-- Estilo visual: pixel art, vectorial plano o collage de papeles.
-- ¿Habilitamos el micrófono? Depende del soporte de la Web Speech API en iOS.
-- Dificultad: ¿modo fácil con ayudas visuales y modo difícil sin pistas?
-- Idioma de los diálogos: español rioplatense fijo, o parametrizable.
 - Privacidad: qué datos viajan por la red y qué se guarda (idealmente nada).
 
 ---
 
 ## 11. Cómo correrlo
 
-*(A completar cuando exista el código.)*
-
 ```bash
-# instalar dependencias
 npm install
-
-# desarrollo
-npm run dev
-
-# producción
-npm run build
+cp .env.example .env.local   # completar GROQ_API_KEY (solo servidor; también se lee de .env)
 ```
 
-Variables de entorno necesarias: `ANTHROPIC_API_KEY` (sólo en el servidor, nunca en el cliente).
+| Comando | Para qué |
+|---|---|
+| `npm run dev` | Servidor con **HTTPS** (certificado autofirmado) en `https://<IP-de-tu-PC>:5173`. Es el que hay que usar con un celular real. La primera vez el celular pedirá aceptar el certificado. **Sirve también las funciones de `api/`** (LLM) sin necesidad de Vercel: la clave se lee de `.env` o `.env.local` en cada pedido, sin reiniciar. |
+| `npm run dev:http` | Mismo servidor sin HTTPS, en el puerto 5174, para probar en el navegador de la PC. |
+| `npm run build` | Typecheck y build de producción. |
+
+Para producción, las carpetas `api/` se despliegan tal cual como funciones serverless (Vercel u otro host compatible) con `GROQ_API_KEY` como variable de entorno. El despliegue se hace a mano.
+
+Para jugar: abrir la PC en `/`, escanear el QR con el celular (misma red WiFi) y tocar **Conectar**. Sin celular, el botón "Jugar sin celular" habilita el teclado: `←/→` inclinar, `S` sacudir, `F` lanzar, `T` sellar, `C` recentrar.
+
+### Estructura
+
+```
+index.html, controller.html     entradas de la PC y del celular
+src/shared/protocol.ts          mensajes y constantes de red
+src/shared/dialogue.ts          cliente del LLM (streaming + bloque de control)
+src/controller/main.ts          sensores, permisos, Wake Lock, envío a 60 Hz
+src/host/net.ts                 receptor WebRTC (PeerJS), descarta paquetes viejos
+src/host/gestures.ts            detección de sacudida, lanzamiento y sellado
+src/host/input.ts               estado de entrada y calibración
+src/host/scene.ts               la ventanilla: HUD, diálogo, planilla, finales
+src/host/intro.ts               historia y capacitación interactiva
+src/host/conversation.ts        motor: turnos, recursos, dificultad, reloj
+src/host/art.ts, audio.ts       arte pixel art y sonido generados en código
+api/dialogue.ts, api/check.ts   funciones serverless: LLM y validación del dato
+api/_cases.ts, api/_prompts.ts  casos secretos y prompts de Gerardo y Tomás
+```
+
+### Estado
+
+Hecho:
+- Conexión por QR, sensores a 60 Hz por canal no ordenado, calibración y detección de gestos.
+- **Introducción y capacitación interactiva** (historia en 3 tarjetas, 4 pasos que exigen hacer cada gesto).
+- **5 ventanillas jugables**, 4 finales, reloj global, relación con Gerardo.
+- **Decisión real:** Tomás se equivoca a propósito y el jugador tiene que sellar o rechazar.
+- **Recursos finitos** (cebadas y papelitos) y dificultad creciente.
+- **Arte pixel art dibujado en código** (personajes con expresiones, oficina, mostrador, mate), fuentes pixeladas y **efectos de sonido sintetizados**.
+- **Diálogo legible**: historial con colores, objetivo siempre visible, consejo contextual, marca ★ en la línea del dato.
+- **Celular con feedback**: instrucciones en vivo, confirmación de gestos, vibración y botones de respaldo.
+- Endpoints del LLM con streaming, límite de ritmo, validación del dato por código y prompts con personalidad, reglas de variedad y pistas ocultas en las quejas de Gerardo.
+- **Modo sin LLM** (`src/host/mock.ts`) si `/api` no responde; lo avisa en pantalla.
+
+Verificado: typecheck y build; partidas en el navegador con el modo de prueba y con **Groq real** (`openai/gpt-oss-120b`: respuestas en 0,5 a 0,8 s, formato de control correcto, errores de Tomás y rechazo de datos mal anotados, avance de ventanillas); la capacitación en dos tamaños de ventana; conexión del celular simulado en ambos sentidos.
+
+**No verificado:** los umbrales de los gestos con celulares físicos (iOS y Android), el sonido (no se pudo escuchar), una partida humana completa con el LLM, el final de la partida contra Groq real y el despliegue en producción.
+
+Pendiente: probar con el LLM y celulares reales y ajustar, música de fondo, animaciones de entrada de los personajes, accesibilidad (tamaños y contraste de la capacitación), despliegue en Vercel.

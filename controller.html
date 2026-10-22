@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Mesa de Entradas · Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+    <style>
+      :root { color-scheme: dark; --ink:#1b1a2e; --cream:#f4e9c8; --amber:#e0a030; --red:#c2452d; --green:#6aa84f; }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+      html, body { margin: 0; height: 100%; background: var(--ink); color: var(--cream); font-family: 'VT323', ui-monospace, Menlo, monospace; font-size: 22px; overscroll-behavior: none; }
+      main { height: 100%; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+      h1 { font-size: 26px; margin: 0; text-align: center; color: var(--amber); letter-spacing: 1px; }
+      #room { text-align: center; opacity: .75; margin: 0; }
+      .center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
+      button { font: inherit; border: 3px solid var(--cream); background: #2a2848; color: var(--cream); border-radius: 0; padding: 14px 10px; }
+      button:active { transform: translateY(2px); background: #3b3a5c; }
+      #connect { background: var(--red); font-size: 30px; padding: 18px 34px; }
+      #connect:disabled { opacity: .4; }
+      .hidden { display: none !important; }
+      #panel { flex: 1; display: flex; flex-direction: column; border: 3px solid #3b3a5c; background: #12111f; padding: 14px; text-align: center; justify-content: center; gap: 8px; transition: background .15s, border-color .15s; }
+      #panel.ok { border-color: var(--green); background: #1d2c1d; }
+      #panel.warn { border-color: var(--amber); background: #2c2414; }
+      #title { font-size: 44px; line-height: 1; color: var(--amber); }
+      #panel.ok #title { color: #b9e0a5; }
+      #sub { font-size: 24px; opacity: .85; }
+      #did { height: 34px; font-size: 30px; color: var(--green); }
+      #grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      #grid button { font-size: 24px; padding: 18px 8px; }
+      #grid .sellar { border-color: var(--green); } #grid .rechazar { border-color: var(--red); }
+      small { opacity: .55; text-align: center; display: block; font-size: 18px; }
+      #status { text-align: center; min-height: 1.2em; opacity: .85; font-size: 20px; }
+      #dbg { font-size: 15px; opacity: .45; text-align: center; white-space: pre; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>MESA DE ENTRADAS</h1>
+      <p id="room"></p>
+      <div id="start" class="center">
+        <p>Tu celular va a ser tu mano en la ventanilla.<br />Al tocar el botón se piden permisos de movimiento.</p>
+        <button id="connect">CONECTAR</button>
+      </div>
+      <section id="playing" class="hidden" style="flex:1; display:flex; flex-direction:column; gap:12px">
+        <div id="panel">
+          <div id="title">…</div>
+          <div id="sub"></div>
+          <div id="did"></div>
+        </div>
+        <div id="grid">
+          <button data-a="mate">SERVIR MATE</button>
+          <button data-a="papelito">PAPELITO</button>
+          <button data-a="sellar" class="sellar">SELLAR</button>
+          <button data-a="rechazar" class="rechazar">RECHAZAR</button>
+        </div>
+        <small>Los botones son por si un gesto no sale.</small>
+        <button id="recenter" style="font-size:18px; padding:8px">Recentrar</button>
+      </section>
+      <p id="status"></p>
+      <div id="dbg"></div>
+    </main>
+    <script type="module" src="/src/controller/main.ts"></script>
+  </body>
+</html>
