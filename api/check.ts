@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { CASOS, esCorrecto } from './_cases';
-import { limitar, recortar } from './_guard';
+import { CASOS, esCorrecto } from './_cases.js';
+import { limitar, recortar } from './_guard.js';
 
 /** Verifica por código, sin LLM, si lo que Tomás anotó coincide con el dato real. */
 export default function handler(req: VercelRequest, res: VercelResponse) {

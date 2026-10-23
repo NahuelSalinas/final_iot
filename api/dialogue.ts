@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { CASOS } from './_cases';
-import { clampNum, limitar, recortar } from './_guard';
-import { streamChat } from './_llm';
-import { promptGerardo, promptTomas, type Estado, type Quien } from './_prompts';
+import { CASOS } from './_cases.js';
+import { clampNum, limitar, recortar } from './_guard.js';
+import { streamChat } from './_llm.js';
+import { promptGerardo, promptTomas, type Estado, type Quien } from './_prompts.js';
 
 interface Body {
   tramo: number;

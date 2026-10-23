@@ -1,4 +1,4 @@
-import type { Caso } from './_cases';
+import type { Caso } from './_cases.js';
 
 export type Quien = 'gerardo' | 'tomas';
 

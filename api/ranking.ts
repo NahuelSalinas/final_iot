@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { db } from './_db';
-import { clampNum, limitar } from './_guard';
+import { db } from './_db.js';
+import { clampNum, limitar } from './_guard.js';
 
 /** Top de partidas, de mayor a menor puntaje. */
 export default async function handler(req: VercelRequest, res: VercelResponse) {

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { FINAL_IDS, TRAMOS_TOTAL, calcularPuntaje, type FilaRanking, type FinalId, type Stats } from '../src/shared/score';
-import { db } from './_db';
-import { clampNum, limitar } from './_guard';
+import { FINAL_IDS, TRAMOS_TOTAL, calcularPuntaje, type FilaRanking, type FinalId, type Stats } from '../src/shared/score.js';
+import { db } from './_db.js';
+import { clampNum, limitar } from './_guard.js';
 
 const TITULO: Record<FinalId, string> = { bueno: 'Escritura firmada', justo: 'Por el pelo', persiana: 'Vuelva mañana', cierre: 'Se acabó la hora' };
 // Iniciales que no queremos ver en el ranking. Se guardan como "***".
