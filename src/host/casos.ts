@@ -54,8 +54,8 @@ export const CASOS_CLIENTE: CasoCliente[] = [
     apertura: 'Casi terminamos, jefe. Queda lo del sello. ¿Había un sello? Había un sello. ¿O era un sticker?',
     animoInicial: 65,
     claridadInicial: 25,
-    pistas: ['Preguntá qué SELLO hace falta.', 'Preguntá de qué área es ese sello.'],
-    dif: { decay: 0.6, errorProb: 0.7, papelitos: 2, cebadas: 3 },
+    pistas: ['Preguntá qué SELLO hace falta.', 'Preguntá de qué área es ese sello.', 'SELLO. Y el área que lo pone.'],
+    dif: { decay: 0.6, errorProb: 0.7, papelitos: 3, cebadas: 3 },
     consejo: 'Cada papelito molesta un poco a Gerardo. Usalos cuando Tomás esté realmente perdido.',
   },
   {
@@ -64,8 +64,8 @@ export const CASOS_CLIENTE: CasoCliente[] = [
     apertura: 'Jefe, otra más. Es sobre cuándo se puede ir. Digo, a la oficina esa. ¿Atenderán? ¿Es una oficina que atiende?',
     animoInicial: 60,
     claridadInicial: 25,
-    pistas: ['Preguntá el HORARIO de atención.', 'Que sea la hora exacta, no "a la mañana".'],
-    dif: { decay: 0.7, errorProb: 0.75, papelitos: 1, cebadas: 2 },
+    pistas: ['Preguntá el HORARIO de atención.', 'Que sea la hora exacta, no "a la mañana".', 'HORARIO. Hora de apertura y de cierre.'],
+    dif: { decay: 0.7, errorProb: 0.75, papelitos: 3, cebadas: 3 },
     consejo: 'Se hace tarde: mirá el reloj de la pared. Cada minuto cuenta.',
   },
   {
@@ -74,8 +74,8 @@ export const CASOS_CLIENTE: CasoCliente[] = [
     apertura: 'Jefe, la última. Es el expediente madre. Del kiosco de la señora Nelly. Me dijeron que usted sabe.',
     animoInicial: 60,
     claridadInicial: 25,
-    pistas: ['Preguntá por el EXPEDIENTE madre.'],
-    dif: { decay: 0.8, errorProb: 0.8, papelitos: 1, cebadas: 2 },
+    pistas: ['Preguntá por el EXPEDIENTE madre.', 'Que te diga el NÚMERO del expediente, completo.', 'Del kiosco de la señora Nelly. EXPEDIENTE. Número.'],
+    dif: { decay: 0.8, errorProb: 0.8, papelitos: 3, cebadas: 3 },
     consejo: 'Gerardo solo colabora de verdad con quien le cae bien. Tratalo con cuidado.',
   },
 ];

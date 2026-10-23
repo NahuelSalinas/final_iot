@@ -28,6 +28,7 @@ const PAPELITO_COST = 3;
 const SELLO_MAL_COST = 15;
 const RECHAZO_MAL_COST = 10;
 const SPILL_COST = 5;
+const MEMORIA = 7; // líneas de charla que se le pasan al LLM (tope del servidor: 8)
 const ERROR_DECAY = 0.3; // después de cada anotación Tomás se equivoca menos
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -53,6 +54,10 @@ export class Conversation {
   busy = false;
   reading = false;
   awaitingDecision = false;
+  /** La planilla está sobre la mesa (decidiendo, verificando o mostrando el resultado): no se cebe mate ni se pasan papelitos. */
+  planillaAbierta = false;
+  /** Apertura de la primera conversación: los gestos que lleguen todavía son ruido (celular recién conectado, restos del menú). */
+  arrancando = false;
   /** Contadores de la partida completa (no se reinician entre ventanillas). */
   completados = 0;
   private cont = { sellosMal: 0, rechazosOk: 0, rechazosMal: 0, mates: 0, derrames: 0, papelitos: 0 };
@@ -68,6 +73,10 @@ export class Conversation {
 
   constructor(private h: Hooks) {}
 
+  get bloqueado() {
+    return this.awaitingDecision || this.planillaAbierta || this.arrancando;
+  }
+
   /** Minutos del día en el reloj de la pared. */
   hora(): number {
     return RELOJ.inicioMin + (this.elapsed * (RELOJ.cierreMin - RELOJ.inicioMin)) / RELOJ.segundosReales;
@@ -79,6 +88,7 @@ export class Conversation {
     this.completados = 0;
     this.cont = { sellosMal: 0, rechazosOk: 0, rechazosMal: 0, mates: 0, derrames: 0, papelitos: 0 };
     this.usingMock = false;
+    this.arrancando = true;
     this.start(0);
   }
 
@@ -96,6 +106,7 @@ export class Conversation {
     this.pistaIdx = 0;
     this.pendingAnota = null;
     this.awaitingDecision = false;
+    this.planillaAbierta = false;
     this.errarChance = c.dif.errorProb;
     this.errarProx = Math.random() < this.errarChance;
     this.history = [];
@@ -148,7 +159,7 @@ export class Conversation {
       return;
     }
     // con el formulario sobre la mesa sólo se sella o se rechaza: nada de mates ni papelitos de fondo
-    if (this.awaitingDecision && (a === 'mate' || a === 'papelito')) return;
+    if (this.bloqueado && (a === 'mate' || a === 'papelito')) return;
     if (a === 'mate') return this.servirMate();
 
     if (a === 'sellar' || a === 'rechazar') {
@@ -193,6 +204,7 @@ export class Conversation {
     this.h.tramo(this.tramo);
     this.say('tomas', caso.apertura);
     await this.leer(caso.apertura);
+    if (id === this.runId) this.arrancando = false;
 
     while (this.alive(id)) {
       const g = await this.turn('gerardo', id);
@@ -205,6 +217,7 @@ export class Conversation {
 
       if (this.pendingAnota) {
         const anotado = this.pendingAnota;
+        this.planillaAbierta = true;
         this.h.planilla(anotado, 'pendiente');
         this.h.fx('paso');
         const d = await new Promise<Decision>((r) => {
@@ -249,6 +262,7 @@ export class Conversation {
         this.errarChance = this.tramo === 0 ? 0 : this.errarChance * ERROR_DECAY;
         this.errarProx = Math.random() < this.errarChance;
         await sleep(1400);
+        this.planillaAbierta = false;
         this.h.planilla(null, 'pendiente');
       }
     }
@@ -292,7 +306,7 @@ export class Conversation {
         papelito: this.papelito,
         errar: this.errarProx,
       },
-      history: this.history.slice(-8),
+      history: this.memoria(),
     };
     const onText = (t: string) => this.alive(id) && this.h.speak(who, t, false);
 
@@ -317,6 +331,15 @@ export class Conversation {
       if (control.anota) this.pendingAnota = control.anota;
     }
     return texto;
+  }
+
+  /**
+   * Lo que recuerda el LLM: la apertura del trámite (fija, para no perder el tema) y las últimas
+   * líneas. Una charla más larga empuja a los modelos a repetirse y a arrastrar errores viejos.
+   */
+  private memoria() {
+    const h = this.history;
+    return h.length > MEMORIA ? [h[0], ...h.slice(-(MEMORIA - 1))] : h;
   }
 
   private async verificar(anotado: string): Promise<boolean> {

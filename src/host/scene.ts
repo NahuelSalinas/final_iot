@@ -54,6 +54,8 @@ export class DeskScene extends Phaser.Scene {
   private tomasImg!: Phaser.GameObjects.Image;
   private gerardoImg!: Phaser.GameObjects.Image;
   private mateImg!: Phaser.GameObjects.Image;
+  private papLabel!: Phaser.GameObjects.Text;
+  private mateLabel!: Phaser.GameObjects.Text;
   private tituloT!: Phaser.GameObjects.Text;
   private relojT!: Phaser.GameObjects.Text;
   private pedidoT!: Phaser.GameObjects.Text;
@@ -75,6 +77,7 @@ export class DeskScene extends Phaser.Scene {
   private lastTalkSfx = 0;
   private tramoT = 0;
   private hintAcc = 0;
+  private estabaBloqueado = true;
 
   constructor() {
     super('desk');
@@ -113,7 +116,7 @@ export class DeskScene extends Phaser.Scene {
     this.tomasImg = this.add.image(t.x, t.y, personaKey('tomas', { animo: 0, boca: 0 })).setOrigin(0.5, 1).setScale(s * 1.35);
     this.gerardoImg = this.add.image(g.x, g.y, personaKey('gerardo', { animo: 0, boca: 0 })).setOrigin(0.5, 1).setScale(s * 1.35);
     this.add.image(this.sx, this.sy, 'counter').setOrigin(0).setScale(s);
-    const m = P(160, 112);
+    const m = P(206, 112); // el mate es para Gerardo: queda de su lado del mostrador
     this.mateImg = this.add.image(m.x, m.y, 'mate').setOrigin(0.5, 0.86).setScale(s * 1.7);
     this.fx = this.add.graphics().setDepth(5);
     this.hud = this.add.graphics().setDepth(6);
@@ -122,10 +125,11 @@ export class DeskScene extends Phaser.Scene {
     const f = (px: number) => `${Math.round(px)}px`;
     const small = Math.max(18, Math.min(24, W * 0.022));
     this.add.rectangle(W / 2, hudH / 2, W, hudH, 0x12111f).setDepth(5);
-    this.add.text(16, 6, 'PACIENCIA DE GERARDO', { fontFamily: FONT, fontSize: f(small), color: COL.gerardo }).setDepth(6);
-    this.add.text(16, 56, 'MATE', { fontFamily: FONT, fontSize: f(small), color: COL.cream }).setDepth(6);
-    this.add.text(W - 16, 6, 'ATENCIÓN DE TOMÁS', { fontFamily: FONT, fontSize: f(small), color: COL.tomas }).setOrigin(1, 0).setDepth(6);
-    this.add.text(W - 16, 56, 'PAPELITOS', { fontFamily: FONT, fontSize: f(small), color: COL.cream }).setOrigin(1, 0).setDepth(6);
+    // cada indicador va del lado de su personaje: Tomás (atención, papelitos) a la izquierda, Gerardo (paciencia, mate) a la derecha
+    this.add.text(16, 6, 'ATENCIÓN DE TOMÁS', { fontFamily: FONT, fontSize: f(small), color: COL.tomas }).setDepth(6);
+    this.papLabel = this.add.text(16, 56, 'PAPELITOS', { fontFamily: FONT, fontSize: f(small), color: COL.cream }).setDepth(6);
+    this.add.text(W - 16, 6, 'PACIENCIA DE GERARDO', { fontFamily: FONT, fontSize: f(small), color: COL.gerardo }).setOrigin(1, 0).setDepth(6);
+    this.mateLabel = this.add.text(W - 16, 56, 'MATE', { fontFamily: FONT, fontSize: f(small), color: COL.cream }).setOrigin(1, 0).setDepth(6);
     this.tituloT = this.add.text(W / 2, 4, '', { fontFamily: FONT, fontSize: f(small), color: COL.cream }).setOrigin(0.5, 0).setDepth(6);
     this.relojT = this.add.text(W / 2, 26, '11:00', { fontFamily: FONT_TITLE, fontSize: f(Math.max(16, small * 1.15)), color: COL.amber }).setOrigin(0.5, 0).setDepth(6);
     this.add.text(W / 2, 62, 'cierra 13:00', { fontFamily: FONT, fontSize: f(small * 0.85), color: COL.dim }).setOrigin(0.5, 0).setDepth(6);
@@ -298,7 +302,7 @@ export class DeskScene extends Phaser.Scene {
       this.pantalla = new PantallaPuntaje(this, this.finStats, calcularPuntaje(this.finStats), () => this.conv.accion('sellar'));
       return;
     }
-    if (this.conv.awaitingDecision && (a === 'mate' || a === 'papelito')) return;
+    if (this.conv.bloqueado && (a === 'mate' || a === 'papelito')) return;
     phone.did(ACCION_LABEL[a]);
     phone.buzz(a === 'sellar' ? 80 : 40);
     if (a === 'sellar' && this.conv.awaitingDecision) {
@@ -355,7 +359,7 @@ export class DeskScene extends Phaser.Scene {
       phone.say(m.titulo, m.sub, 'info');
     }
 
-    if (!c.ended && !c.awaitingDecision) {
+    if (!c.ended && !c.bloqueado) {
       const ev = this.pour.update(inp.roll, dt);
       if (ev === 'pour') this.onAccion('mate');
       else if (ev === 'spill') {
@@ -365,6 +369,8 @@ export class DeskScene extends Phaser.Scene {
     } else {
       this.pour.update(0, dt);
     }
+    if (this.estabaBloqueado && !c.bloqueado) this.pour.rearmar();
+    this.estabaBloqueado = c.bloqueado;
     c.tick(dt);
 
     // personajes: expresión según el estado de juego
@@ -419,23 +425,29 @@ export class DeskScene extends Phaser.Scene {
       g.fillStyle(colorFn(value)).fillRect(x + 2, by + 2, (bw - 4) * (value / 100), 16);
       g.lineStyle(2, 0x3b3a5c).strokeRect(x, by, bw, 20);
     };
-    bar(16, c.patience, (v) => (v > 50 ? 0x6aa84f : v > 25 ? 0xe0a030 : 0xc2452d));
-    bar(W - 16 - bw, c.claridad, (v) => (v > 55 ? 0x6aa84f : v > 35 ? 0xe0a030 : 0xc2452d));
+    bar(16, c.claridad, (v) => (v > 55 ? 0x6aa84f : v > 35 ? 0xe0a030 : 0xc2452d));
+    bar(W - 16 - bw, c.patience, (v) => (v > 50 ? 0x6aa84f : v > 25 ? 0xe0a030 : 0xc2452d));
 
+    // papelitos: lado de Tomás, a la derecha de su etiqueta
+    const maxPap = CASOS_CLIENTE[c.tramo].dif.papelitos;
+    const px0 = 16 + this.papLabel.width + 14;
+    for (let i = 0; i < maxPap; i++) {
+      const x = px0 + i * 24;
+      g.fillStyle(i < c.papelitos ? 0xf2efe2 : 0x3b3a5c).fillRect(x, 60, 16, 20);
+      if (i < c.papelitos) g.fillStyle(0x6b6a80).fillRect(x + 2, 64, 12, 2).fillRect(x + 2, 69, 9, 2);
+    }
+
+    // mate: lado de Gerardo, a la izquierda de su etiqueta
     const maxCeb = CASOS_CLIENTE[c.tramo].dif.cebadas;
+    const mx0 = W - 16 - this.mateLabel.width - 14 - maxCeb * 26;
     for (let i = 0; i < maxCeb; i++) {
-      const x = 16 + 60 + i * 26;
+      const x = mx0 + i * 26;
       g.fillStyle(i < c.cebadas ? 0x7a9a3a : 0x3b3a5c).fillCircle(x + 9, 70, 9);
       g.fillStyle(i < c.cebadas ? 0xcfd8dc : 0x3b3a5c).fillRect(x + 11, 56, 2, 10);
     }
-    const maxPap = CASOS_CLIENTE[c.tramo].dif.papelitos;
-    for (let i = 0; i < maxPap; i++) {
-      const x = W - 16 - 100 - i * 24;
-      g.fillStyle(i < c.papelitos ? 0xf2efe2 : 0x3b3a5c).fillRect(x - 14, 60, 16, 20);
-      if (i < c.papelitos) g.fillStyle(0x6b6a80).fillRect(x - 12, 64, 12, 2).fillRect(x - 12, 69, 9, 2);
-    }
     if (c.mate > 0) {
-      g.fillStyle(0x6aa84f).fillRect(16 + 60 + maxCeb * 26 + 4, 64, Math.min(60, (c.mate / 25) * 60), 8);
+      const w = Math.min(60, (c.mate / 25) * 60);
+      g.fillStyle(0x6aa84f).fillRect(mx0 - 4 - w, 64, w, 8);
     }
   }
 

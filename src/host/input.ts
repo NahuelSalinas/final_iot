@@ -81,6 +81,13 @@ export class PourDetector {
   private spillT = 0;
   private cooldown = 0;
 
+  /** Ignora la inclinación por un rato (al desbloquear, para que un celular ya inclinado no sirva solo). */
+  rearmar(secs = 1.5) {
+    this.t = 0;
+    this.progress = 0;
+    this.cooldown = secs;
+  }
+
   update(roll: number, dt: number): 'pour' | 'spill' | null {
     this.cooldown = Math.max(0, this.cooldown - dt);
     const ang = Math.abs(roll);
