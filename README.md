@@ -35,6 +35,20 @@ Vas a la Municipalidad de *Villa Expediente*. Hay una sola ventanilla abierta, l
 | **Tomás**, el Pasante | Debe pedirle los datos a Gerardo en tu nombre | Bien intencionado pero colgado. Confunde formularios, repite preguntas, se distrae. Es quien termina escribiendo en la planilla. |
 | **Vos** | Ciudadano en la fila | Mudo. Solo actuás con gestos del celular y, si se habilita, con susurros por micrófono. |
 
+### Ranking, base de datos y avisos
+
+Al terminar una partida se anotan 3 iniciales inclinando el celular (sello confirma, rechazo borra), al estilo arcade. El juego manda las **estadísticas** de la partida a `POST /api/score`; el **servidor calcula el puntaje** (`src/shared/score.ts`), la guarda en **Neon (Postgres)** y devuelve el top 10. `GET /api/ranking` alimenta la página `/ranking.html`, pensada para proyectar en la demo.
+
+Si la partida entra al top 10, el servidor llama a un **webhook de Make** que envía un aviso por **Telegram** (no se corre nada en la PC). Sin `DATABASE_URL` el juego funciona igual, solo sin ranking.
+
+Puesta en marcha (una sola vez):
+
+1. Crear un proyecto en Neon y correr `db/schema.sql` en su SQL Editor.
+2. Poner `DATABASE_URL` en `.env.local` (y como variable de entorno en Vercel).
+3. En Make: escenario con módulo **Webhooks → Custom webhook** y un módulo **Telegram Bot → Send a Text Message or a Reply**. Poner la URL del webhook en `MAKE_WEBHOOK_URL`. El payload trae `iniciales`, `puntaje`, `posicion`, `final`, `tramos`, `segundos` y `esRecord` (un *router* puede mandar un mensaje distinto si `esRecord` es true).
+
+Puntaje: 1000 por ventanilla, +10 por punto de relación, +150 por rechazo acertado, +2 por segundo sobrante al ganar, bonus por final (Escritura firmada +2000, Por el pelo +500), y resta por sellos mal (−100), rechazos de más (−75), mates derramados (−50) y papelitos (−30).
+
 ### Estructura: 5 ventanillas = 5 "tramos" del trámite
 
 Cada tramo es un caso corto (2 a 4 minutos) con un **dato secreto distinto** que Gerardo conoce y Tomás debe anotar:
@@ -309,6 +323,10 @@ src/host/conversation.ts        motor: turnos, recursos, dificultad, reloj
 src/host/art.ts, audio.ts       arte pixel art y sonido generados en código
 api/dialogue.ts, api/check.ts   funciones serverless: LLM y validación del dato
 api/_cases.ts, api/_prompts.ts  casos secretos y prompts de Gerardo y Tomás
+api/score.ts, api/ranking.ts    guardar partida (Neon + aviso a Make) y top
+src/host/puntaje.ts             pantalla de iniciales y tabla de fin de partida
+src/shared/score.ts             estadísticas y fórmula del puntaje
+db/schema.sql, ranking.html     esquema de la base y página pública del ranking
 ```
 
 ### Estado

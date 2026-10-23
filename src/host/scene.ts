@@ -5,6 +5,8 @@ import { sfx, type Sfx } from './audio';
 import { CASOS_CLIENTE, FINALES, RELOJ, type FinalKey } from './casos';
 import { Conversation, CPS, type Quien, type Tono } from './conversation';
 import { PourDetector, type InputState } from './input';
+import { PantallaPuntaje } from './puntaje';
+import { calcularPuntaje, type Stats } from '../shared/score';
 import { phone } from './phone';
 import { ACCION_LABEL, bindKeys, COL, FONT, FONT_TITLE, fitText, tiltFromKeys } from './ui';
 
@@ -65,6 +67,9 @@ export class DeskScene extends Phaser.Scene {
   private cardDato!: Phaser.GameObjects.Text;
   private cardKeys!: Phaser.GameObjects.Text;
   private overlay?: Phaser.GameObjects.Container;
+  private pantalla?: PantallaPuntaje;
+  private finStats?: Stats;
+  private finAt = 0;
 
   private lineas: Linea[] = [];
   private lastTalkSfx = 0;
@@ -81,6 +86,7 @@ export class DeskScene extends Phaser.Scene {
     const H = (this.H = this.scale.height);
     this.lineas = [];
     this.overlay = undefined;
+    this.pantalla = undefined;
     this.cameras.main.setBackgroundColor(COL.ink);
 
     // --- layout ---
@@ -181,6 +187,8 @@ export class DeskScene extends Phaser.Scene {
   private onTramo(i: number) {
     this.overlay?.destroy();
     this.overlay = undefined;
+    this.pantalla?.destroy();
+    this.pantalla = undefined;
     this.tramoT = 0;
     const c = CASOS_CLIENTE[i];
     this.tituloT.setText(`VENTANILLA ${i + 1}/${CASOS_CLIENTE.length} · ${c.titulo.toUpperCase()}`);
@@ -276,7 +284,20 @@ export class DeskScene extends Phaser.Scene {
   }
 
   private onAccion(a: Accion) {
+    if (this.pantalla) {
+      this.pantalla.accion(a);
+      return;
+    }
     if (this.conv.ended && a !== 'sellar') return;
+    if (this.conv.ended && this.finStats) {
+      if (this.time.now - this.finAt < 1200) return; // evita que el último golpe salte la pantalla del final
+      sfx('sellar');
+      this.cameras.main.shake(110, 0.006);
+      this.overlay?.destroy();
+      this.overlay = undefined;
+      this.pantalla = new PantallaPuntaje(this, this.finStats, calcularPuntaje(this.finStats), () => this.conv.accion('sellar'));
+      return;
+    }
     phone.did(ACCION_LABEL[a]);
     phone.buzz(a === 'sellar' ? 80 : 40);
     if (a === 'sellar' && this.conv.awaitingDecision) {
@@ -288,16 +309,19 @@ export class DeskScene extends Phaser.Scene {
 
   private showEnd(r: FinalKey) {
     const fin = FINALES[r];
+    this.finStats = this.conv.stats(r);
+    this.finAt = this.time.now;
     const { W, H } = this;
     const dim = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.82);
     const t1 = this.add.text(W / 2, H * 0.28, fin.titulo.toUpperCase(), { fontFamily: FONT_TITLE, fontSize: `${Math.round(Math.max(18, W * 0.032))}px`, color: fin.color, align: 'center', wordWrap: { width: W * 0.85 } }).setOrigin(0.5);
     const t2 = this.add.text(W / 2, H * 0.5, fin.texto, { fontFamily: FONT, fontSize: `${Math.round(Math.max(24, Math.min(36, W * 0.03)))}px`, color: COL.cream, align: 'center', wordWrap: { width: W * 0.75 }, lineSpacing: 8 }).setOrigin(0.5);
     fitText(t2, W * 0.78, H * 0.3, Math.max(24, Math.min(36, W * 0.03)), 16);
-    const stats = `Ventanillas: ${Math.min(this.conv.tramo + (r === 'bueno' || r === 'justo' ? 1 : 0), CASOS_CLIENTE.length)}/${CASOS_CLIENTE.length}  ·  Relación con Gerardo: ${Math.round(this.conv.relacion)}/100`;
-    const t3 = this.add.text(W / 2, H * 0.72, stats, { fontFamily: FONT, fontSize: '24px', color: COL.dim }).setOrigin(0.5);
-    const t4 = this.add.text(W / 2, H * 0.84, 'Golpeá hacia abajo (o tecla T / Espacio) para volver a empezar', { fontFamily: FONT, fontSize: '24px', color: COL.amber }).setOrigin(0.5);
+    const puntaje = calcularPuntaje(this.finStats);
+    const stats = `Ventanillas: ${this.finStats.tramos}/${CASOS_CLIENTE.length}  ·  Relación con Gerardo: ${this.finStats.relacion}/100  ·  Puntaje: ${puntaje}`;
+    const t3 = this.add.text(W / 2, H * 0.72, stats, { fontFamily: FONT, fontSize: '24px', color: COL.dim, wordWrap: { width: W * 0.9 }, align: 'center' }).setOrigin(0.5);
+    const t4 = this.add.text(W / 2, H * 0.84, 'Golpeá hacia abajo (o tecla T / Espacio) para anotar tu puntaje', { fontFamily: FONT, fontSize: '24px', color: COL.amber }).setOrigin(0.5);
     this.overlay = this.add.container(0, 0, [dim, t1, t2, t3, t4]).setDepth(20);
-    phone.say(fin.titulo.toUpperCase(), 'Golpeá hacia abajo para reintentar', r === 'bueno' || r === 'justo' ? 'ok' : 'warn');
+    phone.say(fin.titulo.toUpperCase(), 'Golpeá hacia abajo para anotar tu puntaje', r === 'bueno' || r === 'justo' ? 'ok' : 'warn');
   }
 
   // --- consejo del momento ---------------------------------------------
@@ -322,6 +346,13 @@ export class DeskScene extends Phaser.Scene {
     const c = this.conv;
     this.tramoT += dt;
     tiltFromKeys(inp, this.keys, dt);
+
+    if (this.pantalla) {
+      const flecha = !inp.connected ? 0 : Phaser.Input.Keyboard.JustDown(this.keys.RIGHT) ? 1 : Phaser.Input.Keyboard.JustDown(this.keys.LEFT) ? -1 : 0;
+      this.pantalla.update(inp.roll, dt, flecha);
+      const m = this.pantalla.celu();
+      phone.say(m.titulo, m.sub, 'info');
+    }
 
     if (!c.ended) {
       const ev = this.pour.update(inp.roll, dt);
