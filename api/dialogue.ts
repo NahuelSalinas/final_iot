@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { CASOS } from './_cases.js';
+import { CASOS, normalizar } from './_cases.js';
 import { clampNum, limitar, recortar } from './_guard.js';
 import { streamChat } from './_llm.js';
 import { promptGerardo, promptTomas, type Estado, type Quien } from './_prompts.js';
@@ -36,7 +36,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     mate: e.mate === true,
     papelito: e.papelito ? recortar(e.papelito, 120) : null,
     errar: e.errar === true,
+    preguntaClara: false,
   };
+
+  // Si Tomás preguntó bien lo decide el código: dejarlo a criterio del LLM generaba bucles de evasivas.
+  const hist = Array.isArray(b.history) ? b.history : [];
+  const ultima = hist[hist.length - 1];
+  estado.preguntaClara = ultima?.who === 'tomas' && typeof ultima.text === 'string' && normalizar(ultima.text).includes(normalizar(caso.clave));
 
   const system = b.who === 'gerardo' ? promptGerardo(caso, estado) : promptTomas(caso, estado);
 

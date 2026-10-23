@@ -9,6 +9,7 @@ export interface Estado {
   mate: boolean; // Gerardo tiene un mate reciente
   papelito: string | null; // pista que el ciudadano le pasó a Tomás
   errar: boolean; // si Tomás anota, debe equivocarse en un detalle
+  preguntaClara: boolean; // la última frase de Tomás nombra el tema (lo calcula el servidor, no el LLM)
 }
 
 const FORMATO = `
@@ -35,8 +36,14 @@ DATO SECRETO que solo vos conocés: ${c.dato}.
 Lo que Tomás debe averiguar: ${c.objetivo}.
 
 Reglas de juego:
-- ${dispuesto ? `Tu paciencia (${e.animo}) alcanza: SI la última pregunta de Tomás es clara y trata de ${c.objetivo} (menciona "${c.clave}" o algo equivalente), decí el dato completo en una sola frase, a regañadientes y con una queja seca (el reloj, el mate que no llega, la radio). Nunca lo digas con amabilidad.` : `Tu paciencia (${e.animo}) no alcanza (mínimo ${minimo}): aunque pregunten bien, NO digas el dato. Te quejás, te hacés el distraído o pedís un momento.`}
-- Si la pregunta es vaga o confusa, no des el dato. Tu respuesta evasiva debe incluir, escondida dentro de la queja, una pista indirecta de qué falta precisar (por ejemplo: "¿Qué papel? Acá hay mil papeles, decime bien cuál").
+- ${
+    dispuesto && e.preguntaClara
+      ? `ORDEN: la última pregunta de Tomás es clara y tu paciencia (${e.animo}) alcanza. En esta respuesta decí el dato completo ("${c.dato}") en una sola frase, a regañadientes y con una queja seca (el reloj, el mate que no llega, la radio). Nunca con amabilidad. Poné revela:true. No lo evadas ni lo pospongas.`
+      : dispuesto
+        ? `La pregunta de Tomás todavía no nombra el tema ("${c.clave}"): NO des el dato. Respondé evasivo, con una pista escondida en la queja de qué falta precisar (por ejemplo: "¿Qué papel? Acá hay mil papeles, decime bien cuál").`
+        : `Tu paciencia (${e.animo}) no alcanza (mínimo ${minimo}): aunque pregunten bien, NO digas el dato. Te quejás, te hacés el distraído, mirás el reloj o insinuás que el mate no llega.`
+  }
+- Vos sabés todo de memoria: nunca mandes a Tomás a buscar, mirar carpetas, archivos ni otra oficina, ni digas que "no tenés nada a mano". Si no das el dato es porque no querés, no porque no lo tengas. Tampoco inventes datos distintos del secreto.
 - Si Tomás dijo algo gracioso o torpe, podés reaccionar a eso con sequedad, pero siempre avanzás la conversación.
 - Estado: paciencia ${e.animo}/100, relación con el ciudadano ${e.relacion}/100.${e.mate ? ' Acabás de tomar un mate: estás un poco más blando y hasta se te escapa algo de humor.' : ''}${e.animo < 30 ? ' Estás al borde de irte: frases más cortas y más ásperas.' : ''}
 ${ESTILO}
@@ -51,7 +58,7 @@ Tenés que averiguar para un ciudadano ${c.objetivo}, pero la consigna te llegó
 
 NO sabés el dato. Solo conocés lo que Gerardo dijo en la conversación; jamás lo inventes.
 Claridad actual: ${e.claridad}/100.
-${claro ? `Estás encaminado: tu pregunta debe ser clara y nombrar el tema ("${c.clave}"), aunque con tu tono atropellado.` : `Estás confundido: NO uses la palabra "${c.clave}". Preguntá algo vecino o vago (confundí el tema con otro de la oficina), por ejemplo preguntando por el trámite en general o por algo de la misma familia.`}${e.papelito ? `\nTe acaban de pasar un papelito que dice: "${e.papelito}". Usalo ya mismo para corregir tu pregunta; sé claro.` : ''}
+${claro ? `Estás encaminado: tu frase DEBE contener literalmente la palabra "${c.clave}" y pedir ${c.objetivo}, aunque con tu tono atropellado. Si Gerardo se quejó o se hizo el distraído, insistí con la misma pregunta clara; no pidas que te ayude a "encontrar" nada ni cambies de tema.` : `Estás confundido: NO uses la palabra "${c.clave}". Preguntá algo vecino o vago (confundí el tema con otro de la oficina), por ejemplo preguntando por el trámite en general o por algo de la misma familia.`}${e.papelito ? `\nTe acaban de pasar un papelito que dice: "${e.papelito}". Usalo ya mismo para corregir tu pregunta; sé claro.` : ''}
 
 Anotar:
 - Solo anotás cuando Gerardo acaba de decir el dato completo en su ÚLTIMA frase. En cualquier otro caso "anota" va vacío.
