@@ -21,6 +21,7 @@ const SEND_HZ = 60;
 
 // Último valor de cada sensor; un temporizador los empaqueta y los envía.
 const last = { a: 0, b: 0, g: 0, x: 0, y: 0, z: 0 };
+const grav = { x: 0, y: 0, z: 0 }; // gravedad estimada (filtro pasa-bajos)
 let seq = 0;
 let ctrl: DataConnection | undefined;
 let sensor: DataConnection | undefined;
@@ -61,9 +62,22 @@ function listenSensors() {
   });
   window.addEventListener('devicemotion', (e) => {
     const acc = e.acceleration;
-    last.x = acc?.x ?? 0;
-    last.y = acc?.y ?? 0;
-    last.z = acc?.z ?? 0;
+    if (acc && acc.x !== null && acc.y !== null && acc.z !== null) {
+      last.x = acc.x;
+      last.y = acc.y;
+      last.z = acc.z;
+      return;
+    }
+    // Algunos celulares no entregan la aceleración sin gravedad: se la resta a la que la incluye.
+    const g = e.accelerationIncludingGravity;
+    if (!g) return;
+    const k = 0.05;
+    grav.x += k * ((g.x ?? 0) - grav.x);
+    grav.y += k * ((g.y ?? 0) - grav.y);
+    grav.z += k * ((g.z ?? 0) - grav.z);
+    last.x = (g.x ?? 0) - grav.x;
+    last.y = (g.y ?? 0) - grav.y;
+    last.z = (g.z ?? 0) - grav.z;
   });
 }
 

@@ -298,6 +298,7 @@ export class DeskScene extends Phaser.Scene {
       this.pantalla = new PantallaPuntaje(this, this.finStats, calcularPuntaje(this.finStats), () => this.conv.accion('sellar'));
       return;
     }
+    if (this.conv.awaitingDecision && (a === 'mate' || a === 'papelito')) return;
     phone.did(ACCION_LABEL[a]);
     phone.buzz(a === 'sellar' ? 80 : 40);
     if (a === 'sellar' && this.conv.awaitingDecision) {
@@ -354,7 +355,7 @@ export class DeskScene extends Phaser.Scene {
       phone.say(m.titulo, m.sub, 'info');
     }
 
-    if (!c.ended) {
+    if (!c.ended && !c.awaitingDecision) {
       const ev = this.pour.update(inp.roll, dt);
       if (ev === 'pour') this.onAccion('mate');
       else if (ev === 'spill') {

@@ -147,6 +147,8 @@ export class Conversation {
       if (a === 'sellar') this.newGame();
       return;
     }
+    // con el formulario sobre la mesa sólo se sella o se rechaza: nada de mates ni papelitos de fondo
+    if (this.awaitingDecision && (a === 'mate' || a === 'papelito')) return;
     if (a === 'mate') return this.servirMate();
 
     if (a === 'sellar' || a === 'rechazar') {

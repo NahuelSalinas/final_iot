@@ -13,20 +13,24 @@ const T = {
   shakeAmp: 7,
   shakeFlips: 4,
   shakeWindowMs: 700,
-  cooldownMs: 450,
+  cooldownMs: 650,
+  reboteMs: 1000, // tras un golpe o sacudida, el rebote de la mano no cuenta como otro gesto
 };
 
 export class GestureDetector {
   private flips: number[] = [];
   private lastSign = 0;
   private lastFire = 0;
+  private prev = { x: 0, y: 0, z: 0 };
 
   constructor(private onGesture: (g: GestureName) => void) {}
 
   feed(p: SensorPacket, now = performance.now()) {
-    const ax = Math.abs(p.x);
-    const ay = Math.abs(p.y);
-    const az = Math.abs(p.z);
+    // promedio con la muestra anterior: un pico de un solo paquete (ruido) no alcanza
+    const ax = Math.abs(p.x + this.prev.x) / 2;
+    const ay = Math.abs(p.y + this.prev.y) / 2;
+    const az = Math.abs(p.z + this.prev.z) / 2;
+    this.prev = { x: p.x, y: p.y, z: p.z };
 
     // Sacudida: contamos cambios de signo en el eje con más energía.
     const dom = Math.max(ax, ay, az);
@@ -48,7 +52,7 @@ export class GestureDetector {
     }
     if (dom > T.spike) {
       if (ay > az * T.dominance && ay > ax * T.dominance) this.fire('stamp', now);
-      else if (az > ay * T.dominance && az > ax * T.dominance) this.fire('flick', now);
+      else if (az > ay * T.dominance && az > ax * T.dominance && now - this.lastFire > T.reboteMs) this.fire('flick', now);
     }
   }
 

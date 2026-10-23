@@ -8,6 +8,11 @@ export const GESTO_A_ACCION: Record<GestureName, Accion> = {
   flick: 'papelito',
 };
 
+/** Peso de cada lectura nueva en la media móvil exponencial (menor = más suave pero más lento). */
+export const SUAVIZADO = 0.25;
+/** Grados alrededor de 0 que se toman como "derecho". */
+export const ZONA_MUERTA = 3;
+
 /** Estado de entrada compartido entre la red y las escenas. */
 export class InputState {
   /** inclinación lateral en grados (positivo = derecha) */
@@ -30,10 +35,20 @@ export class InputState {
     [...this.listeners].forEach((fn) => fn(a));
   }
 
+  private primero = true;
+
+  /** Las lecturas llegan crudas y con temblor de mano: se suavizan antes de usarlas. */
   applySensor(p: SensorPacket) {
     this.lastAlpha = p.a;
-    this.roll = p.g;
-    this.pitch = p.b;
+    if (this.primero) {
+      this.roll = p.g;
+      this.pitch = p.b;
+      this.primero = false;
+    } else {
+      this.roll += SUAVIZADO * (p.g - this.roll);
+      this.pitch += SUAVIZADO * (p.b - this.pitch);
+    }
+    if (Math.abs(this.roll) < ZONA_MUERTA) this.roll = 0;
     this.yaw = wrap180(p.a - this.yawZero);
   }
 
@@ -47,8 +62,10 @@ function wrap180(d: number): number {
   return ((((d + 180) % 360) + 360) % 360) - 180;
 }
 
-export const POUR_MIN = 15; // grados mínimos para servir
+export const POUR_MIN = 15; // grados mínimos para empezar a servir
+const POUR_SALIDA = 12; // una vez sirviendo, se sigue hasta bajar de acá (histéresis)
 export const SPILL_ANGLE = 35; // a partir de acá se derrama
+const SPILL_SALIDA = 32; // y deja de derramar al bajar de acá
 export const POUR_SECS = 1; // cuánto hay que sostener el ángulo
 const SPILL_SECS = 0.35;
 
@@ -67,7 +84,7 @@ export class PourDetector {
   update(roll: number, dt: number): 'pour' | 'spill' | null {
     this.cooldown = Math.max(0, this.cooldown - dt);
     const ang = Math.abs(roll);
-    this.spilling = ang > SPILL_ANGLE;
+    this.spilling = ang > (this.spilling ? SPILL_SALIDA : SPILL_ANGLE);
     if (this.spilling) {
       this.t = 0;
       this.progress = 0;
@@ -80,7 +97,7 @@ export class PourDetector {
       return null;
     }
     this.spillT = 0;
-    if (ang >= POUR_MIN && this.cooldown === 0) {
+    if (ang >= (this.t > 0 ? POUR_SALIDA : POUR_MIN) && this.cooldown === 0) {
       this.t += dt;
       this.progress = Math.min(1, this.t / POUR_SECS);
       if (this.t >= POUR_SECS) {

@@ -15,7 +15,8 @@ export async function guardarPartida(iniciales: string, stats: Stats): Promise<R
 }
 
 const LETRAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const UMBRAL = 25; // grados de inclinación para cambiar de letra
+const UMBRAL = 25; // grados de inclinación para empezar a cambiar de letra
+const UMBRAL_SALIDA = 18; // y hasta acá se sigue considerando inclinado (histéresis)
 const PASO = 0.3; // segundos entre cambios mientras se mantiene inclinado
 const PASO_RAPIDO = 0.12;
 
@@ -27,6 +28,7 @@ export class PantallaPuntaje {
   private root: Phaser.GameObjects.Container;
   private letras: number[] = [];
   private paso = 0;
+  private dirActual: -1 | 0 | 1 = 0;
   private fase: 'iniciales' | 'guardando' | 'tabla' = 'iniciales';
   private slots: Phaser.GameObjects.Text[] = [];
   private info!: Phaser.GameObjects.Text;
@@ -66,7 +68,11 @@ export class PantallaPuntaje {
   update(roll: number, dt: number, flecha: -1 | 0 | 1) {
     if (this.fase !== 'iniciales') return;
     this.paso = Math.max(0, this.paso - dt);
-    const dir = flecha || (roll > UMBRAL ? 1 : roll < -UMBRAL ? -1 : 0);
+    // histéresis: una vez inclinado hacia un lado, se sigue hasta bajar de UMBRAL_SALIDA
+    const mantiene = this.dirActual === 1 ? roll > UMBRAL_SALIDA : this.dirActual === -1 ? roll < -UMBRAL_SALIDA : false;
+    const nuevo = roll > UMBRAL ? 1 : roll < -UMBRAL ? -1 : 0;
+    this.dirActual = mantiene ? this.dirActual : nuevo;
+    const dir = flecha || this.dirActual;
     if (!dir) {
       this.paso = 0;
       return;
