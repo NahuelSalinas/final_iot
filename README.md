@@ -67,8 +67,8 @@ En el tramo 5 se revela que Gerardo **tomaba mate con tu abuela Nelly** todas la
 
 | Final | Condición |
 |---|---|
-| **Escritura firmada** | Las 5 ventanillas con buena relación (≥ 50) con Gerardo. Revela que le fiaba alfajores a Nelly. |
-| **Por el pelo** | Las 5 ventanillas con mala relación. Sello a las 12:59 y sin cariño. |
+| **Escritura firmada** | Las 5 ventanillas superadas y relación con Gerardo ≥ 50 al terminar. Revela que le fiaba alfajores a Nelly. |
+| **Por el pelo** | Las 5 ventanillas superadas pero con relación < 50 al terminar. Sello a las 12:59 y sin cariño. |
 | **Vuelva mañana** | La paciencia de Gerardo llega a 0 en cualquier ventanilla. |
 | **Se acabó la hora** | El reloj marca las 13:00. |
 
@@ -113,11 +113,11 @@ El texto se escribe en pantalla a unos 34 caracteres por segundo y, al terminar,
 |---|---|---|---|---|
 | 1 · Formulario | 0,4 /s | 100 % (se usa para enseñar) | 3 | 3 |
 | 2 · Oficina y piso | 0,5 /s | 60 % | 2 | 3 |
-| 3 · Sello | 0,6 /s | 70 % | 2 | 3 |
-| 4 · Horario | 0,7 /s | 75 % | 1 | 2 |
-| 5 · Expediente madre | 0,8 /s | 80 % | 1 | 2 |
+| 3 · Sello | 0,6 /s | 70 % | 3 | 3 |
+| 4 · Horario | 0,7 /s | 75 % | 3 | 3 |
+| 5 · Expediente madre | 0,8 /s | 80 % | 3 | 3 |
 
-Además, Gerardo exige más ánimo para hablar en cada ventanilla, y en la última **solo colabora de verdad si la relación con él es buena** (≥ 50). El reloj es global: 10 minutos reales equivalen a las 2 horas de la oficina.
+Además, Gerardo exige más ánimo para hablar en cada ventanilla, y en la última **solo colabora de verdad si la relación con él es buena** (≥ 50). El reloj es global: 13 minutos reales (780 s) equivalen a las 2 horas de la oficina.
 
 ## 4. Diseño de los LLMs
 
@@ -303,7 +303,7 @@ cp .env.example .env.local   # completar GROQ_API_KEY (solo servidor; también s
 | `npm run dev:http` | Mismo servidor sin HTTPS, en el puerto 5174, para probar en el navegador de la PC. |
 | `npm run build` | Typecheck y build de producción. |
 
-Para producción, las carpetas `api/` se despliegan tal cual como funciones serverless (Vercel u otro host compatible) con `GROQ_API_KEY` como variable de entorno. El despliegue se hace a mano.
+Para producción, las carpetas `api/` se despliegan tal cual como funciones serverless en Vercel. Variables de entorno: `GROQ_API_KEY` (obligatoria), `DATABASE_URL`, `MAKE_WEBHOOK_URL` y `MAKE_WEBHOOK_KEY` (opcionales, ver `.env.example`).
 
 Para jugar: abrir la PC en `/`, escanear el QR con el celular (misma red WiFi) y tocar **Conectar**. Sin celular, el botón "Jugar sin celular" habilita el teclado: `←/→` inclinar, `S` sacudir, `F` lanzar, `T` sellar, `C` recentrar.
 
@@ -320,9 +320,15 @@ src/host/input.ts               estado de entrada y calibración
 src/host/scene.ts               la ventanilla: HUD, diálogo, planilla, finales
 src/host/intro.ts               historia y capacitación interactiva
 src/host/conversation.ts        motor: turnos, recursos, dificultad, reloj
+src/host/casos.ts               los 5 tramos: dato, dificultad, consejos y reloj
+src/host/boot.ts, ui.ts         carga de la escena y piezas de interfaz
+src/host/phone.ts, mock.ts      vista del celular en pantalla y modo sin LLM
 src/host/art.ts, audio.ts       arte pixel art y sonido generados en código
 api/dialogue.ts, api/check.ts   funciones serverless: LLM y validación del dato
 api/_cases.ts, api/_prompts.ts  casos secretos y prompts de Gerardo y Tomás
+api/_llm.ts, api/_guard.ts      cliente de Groq y límite de ritmo
+api/_db.ts                      conexión a Neon
+docs/PLAN-MEJORAS.md            plan de mejoras pendiente
 api/score.ts, api/ranking.ts    guardar partida (Neon + aviso a Make) y top
 src/host/puntaje.ts             pantalla de iniciales y tabla de fin de partida
 src/shared/score.ts             estadísticas y fórmula del puntaje
