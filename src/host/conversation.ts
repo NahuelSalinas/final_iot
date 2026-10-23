@@ -1,5 +1,6 @@
 import { streamDialogue, type Control } from '../shared/dialogue';
 import type { Accion } from '../shared/protocol';
+import type { Stats } from '../shared/score';
 import { CASOS_CLIENTE, RELOJ, type FinalKey } from './casos';
 import { mockCheck, mockDialogue } from './mock';
 import type { Sfx } from './audio';
@@ -52,6 +53,9 @@ export class Conversation {
   busy = false;
   reading = false;
   awaitingDecision = false;
+  /** Contadores de la partida completa (no se reinician entre ventanillas). */
+  completados = 0;
+  private cont = { sellosMal: 0, rechazosOk: 0, rechazosMal: 0, mates: 0, derrames: 0, papelitos: 0 };
 
   private papelito: string | null = null;
   private pistaIdx = 0;
@@ -72,6 +76,8 @@ export class Conversation {
   newGame() {
     this.elapsed = 0;
     this.relacion = 50;
+    this.completados = 0;
+    this.cont = { sellosMal: 0, rechazosOk: 0, rechazosMal: 0, mates: 0, derrames: 0, papelitos: 0 };
     this.usingMock = false;
     this.start(0);
   }
@@ -116,6 +122,7 @@ export class Conversation {
       return;
     }
     this.cebadas--;
+    this.cont.mates++;
     this.mate = MATE_SECS;
     this.addPatience(MATE_PATIENCE);
     this.addRelacion(4);
@@ -127,6 +134,7 @@ export class Conversation {
   derramar() {
     if (this.ended) return;
     this.h.fx('derrame');
+    this.cont.derrames++;
     this.addPatience(-SPILL_COST);
     this.addRelacion(-4);
     this.cebadas = Math.max(0, this.cebadas - 1);
@@ -154,6 +162,7 @@ export class Conversation {
       return;
     }
     this.papelitos--;
+    this.cont.papelitos++;
     this.pistaIdx++;
     this.papelito = pista;
     this.claridad = clamp(this.claridad + 25, 0, 100);
@@ -212,6 +221,7 @@ export class Conversation {
           this.h.fx('mal');
           this.h.planilla(anotado, 'mal');
           this.h.toast('¡Sellaste un dato incorrecto! −paciencia', 'warn');
+          this.cont.sellosMal++;
           this.addPatience(-SELLO_MAL_COST);
           this.addRelacion(-8);
           this.history.push({ who: 'ciudadano', text: '(El ciudadano selló la planilla y salió rechazada: el dato estaba mal.)' });
@@ -219,6 +229,7 @@ export class Conversation {
           // Rechazaste algo que estaba bien.
           this.h.fx('mal');
           this.h.toast('¡Estaba bien! Gerardo odia que le hagan perder el tiempo', 'warn');
+          this.cont.rechazosMal++;
           this.addPatience(-RECHAZO_MAL_COST);
           this.addRelacion(-5);
           this.history.push({ who: 'ciudadano', text: '(El ciudadano devolvió la planilla, pero el dato estaba bien.)' });
@@ -226,6 +237,7 @@ export class Conversation {
           // Rechazaste algo mal anotado: bien visto.
           this.h.fx('rechazar');
           this.h.toast('Bien visto: Tomás lo anotó mal. Lo intenta de nuevo', 'ok');
+          this.cont.rechazosOk++;
           this.addRelacion(3);
           this.claridad = clamp(this.claridad + 10, 0, 100);
           this.history.push({ who: 'ciudadano', text: '(El ciudadano devolvió la planilla: el dato estaba mal anotado.)' });
@@ -244,6 +256,7 @@ export class Conversation {
     this.h.planilla(anotado, 'ok');
     this.h.fx('ok');
     this.h.toast('¡Dato correcto! Ventanilla superada', 'ok');
+    this.completados++;
     this.addRelacion(2);
     await sleep(1800);
     if (!this.alive(id)) return;
@@ -318,6 +331,11 @@ export class Conversation {
       this.usingMock = true;
       return mockCheck(this.tramo, anotado);
     }
+  }
+
+  /** Estadísticas de la partida para el puntaje. */
+  stats(final: FinalKey): Stats {
+    return { final, tramos: this.completados, relacion: Math.round(this.relacion), segundos: Math.round(this.elapsed), ...this.cont };
   }
 
   private finish(r: FinalKey) {

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ranking · Mesa de Entradas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+    <style>
+      html, body { margin: 0; min-height: 100%; background: #1b1a2e; color: #f4e9c8; font-family: 'VT323', ui-monospace, Menlo, monospace; font-size: 26px; }
+      main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+      h1 { font-family: 'Press Start 2P', monospace; font-size: 20px; color: #e0a030; text-align: center; line-height: 1.5; }
+      p { text-align: center; color: #9a94b8; margin: 0 0 18px; }
+      table { width: 100%; border-collapse: collapse; }
+      td { padding: 6px 8px; border-bottom: 2px solid #2a2848; }
+      td.n { color: #9a94b8; width: 2.5em; }
+      td.i { font-family: 'Press Start 2P', monospace; font-size: 18px; color: #ffd27a; }
+      td.p { text-align: right; color: #b9e0a5; }
+      td.f { color: #9a94b8; text-align: right; }
+      tr:first-child td.i, tr:first-child td.p { color: #e0a030; }
+      #estado { margin-top: 18px; }
+      @media (max-width: 520px) { td.f { display: none; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>MESA DE ENTRADAS<br />RANKING</h1>
+      <p id="estado">Cargando…</p>
+      <table id="tabla"></table>
+    </main>
+    <script type="module">
+      const TITULO = { bueno: 'Escritura firmada', justo: 'Por el pelo', persiana: 'Vuelva mañana', cierre: 'Se acabó la hora' };
+      const $ = (id) => document.getElementById(id);
+      async function cargar() {
+        try {
+          const r = await fetch('/api/ranking?limit=20');
+          if (!r.ok) throw new Error(r.status);
+          const { top } = await r.json();
+          $('estado').textContent = top.length ? '' : 'Todavía no hay partidas. ¡Sé el primero!';
+          $('tabla').innerHTML = top
+            .map((x, i) => `<tr><td class="n">${String(i + 1).padStart(2, '0')}</td><td class="i">${x.iniciales}</td><td class="p">${x.puntaje}</td><td class="f">${TITULO[x.final] ?? ''}</td></tr>`)
+            .join('');
+        } catch {
+          $('estado').textContent = 'Ranking no disponible por ahora.';
+        }
+      }
+      cargar();
+      setInterval(cargar, 10000);
+    </script>
+  </body>
+</html>

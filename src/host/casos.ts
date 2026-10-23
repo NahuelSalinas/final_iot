@@ -1,4 +1,5 @@
 // Parte pública de cada tramo. El dato secreto NO está acá: vive en api/_cases.ts.
+import { SEGUNDOS_PARTIDA } from '../shared/score';
 
 export interface Dificultad {
   /** paciencia que pierde Gerardo por segundo */
@@ -80,7 +81,7 @@ export const CASOS_CLIENTE: CasoCliente[] = [
 ];
 
 /** Reloj de la pared: arranca a las 11:00 y la oficina cierra a las 13:00. */
-export const RELOJ = { inicioMin: 11 * 60, cierreMin: 13 * 60, segundosReales: 780 };
+export const RELOJ = { inicioMin: 11 * 60, cierreMin: 13 * 60, segundosReales: SEGUNDOS_PARTIDA };
 
 export const HISTORIA: string[] = [
   'Martes, 10:40.\nTu abuela Nelly atendió el kiosco de la esquina durante 41 años. Ahora es tuyo, si presentás el Certificado de Libre Deuda antes de las 13:00. Después, remate.',

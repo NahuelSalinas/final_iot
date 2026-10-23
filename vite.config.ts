@@ -57,6 +57,7 @@ export default defineConfig({
       input: {
         host: resolve(__dirname, 'index.html'),
         controller: resolve(__dirname, 'controller.html'),
+        ranking: resolve(__dirname, 'ranking.html'),
       },
     },
   },
